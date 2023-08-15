@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:meals_app/pages/categories.dart';
 import 'package:meals_app/pages/filters.dart';
 import 'package:meals_app/pages/meals.dart';
-import 'package:meals_app/providers/saved_provider.dart';
+import 'package:meals_app/riverpod/saved_provider.dart';
 import 'package:meals_app/widgets/main_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/filters_provider.dart';
+import '../riverpod/filters_provider.dart';
 
 class TabsPage extends ConsumerStatefulWidget {
   const TabsPage({super.key});

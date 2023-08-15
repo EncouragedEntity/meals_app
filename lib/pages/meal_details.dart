@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/models/meal.dart';
-import 'package:meals_app/providers/saved_provider.dart';
+import 'package:meals_app/riverpod/saved_provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class MealDetailsPage extends ConsumerWidget {
@@ -15,6 +15,7 @@ class MealDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final savedMeals = ref.watch(savedProvider);
+    bool isSaved = savedMeals.contains(meal);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,9 +36,19 @@ class MealDetailsPage extends ConsumerWidget {
                 ),
               );
             },
-            icon: savedMeals.contains(meal)
-                ? const Icon(Icons.bookmark)
-                : const Icon(Icons.bookmark_border),
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              transitionBuilder: (child, anim) {
+                return ScaleTransition(
+                  scale: anim,
+                  child: child,
+                );
+              },
+              child: Icon(
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                key: ValueKey(isSaved),
+              ),
+            ),
           )
         ],
       ),
@@ -49,9 +60,12 @@ class MealDetailsPage extends ConsumerWidget {
               clipBehavior: Clip.hardEdge,
               decoration:
                   BoxDecoration(borderRadius: BorderRadius.circular(15)),
-              child: FadeInImage(
-                placeholder: MemoryImage(kTransparentImage),
-                image: NetworkImage(meal.imageUrl),
+              child: Hero(
+                tag: meal.id,
+                child: FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(meal.imageUrl),
+                ),
               ),
             ),
             const SizedBox(
