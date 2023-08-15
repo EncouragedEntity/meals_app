@@ -9,11 +9,9 @@ import '../models/meal.dart';
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({
     super.key,
-    required this.onMealSave,
     required this.meals,
   });
   final List<Meal> meals;
-  final void Function(Meal meal) onMealSave;
 
   void _selectCategory(BuildContext context, Category category) {
     final categorizedMeals = meals
@@ -26,7 +24,6 @@ class CategoriesPage extends StatelessWidget {
           return MealsPage(
             title: category.title,
             meals: categorizedMeals,
-            onMealSave: onMealSave,
           );
         },
       ),

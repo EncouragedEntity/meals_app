@@ -9,19 +9,16 @@ class MealsPage extends StatelessWidget {
     super.key,
     this.title,
     required this.meals,
-    required this.onMealSave,
   });
 
   final String? title;
   final List<Meal> meals;
-  final void Function(Meal meal) onMealSave;
 
   void _showMealDeteails(BuildContext context, Meal meal) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (ctx) {
         return MealDetailsPage(
           meal,
-          onMealSave: onMealSave,
         );
       }),
     );

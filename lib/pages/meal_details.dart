@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/models/meal.dart';
+import 'package:meals_app/providers/saved_provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class MealDetailsPage extends StatelessWidget {
+class MealDetailsPage extends ConsumerWidget {
   const MealDetailsPage(
     this.meal, {
     super.key,
-    required this.onMealSave,
   });
 
-  final void Function(Meal meal) onMealSave;
   final Meal meal;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final savedMeals = ref.watch(savedProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -24,9 +26,18 @@ class MealDetailsPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              onMealSave(meal);
+              var result =
+                  ref.read(savedProvider.notifier).toggleMealSavedStatus(meal);
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(result ? 'Saved' : 'Unsaved'),
+                ),
+              );
             },
-            icon: const Icon(Icons.bookmark_border),
+            icon: savedMeals.contains(meal)
+                ? const Icon(Icons.bookmark)
+                : const Icon(Icons.bookmark_border),
           )
         ],
       ),

@@ -1,55 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:meals_app/data/dummy_data.dart';
 import 'package:meals_app/pages/categories.dart';
 import 'package:meals_app/pages/filters.dart';
 import 'package:meals_app/pages/meals.dart';
+import 'package:meals_app/providers/saved_provider.dart';
 import 'package:meals_app/widgets/main_drawer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/meal.dart';
+import '../providers/filters_provider.dart';
 
-class TabsPage extends StatefulWidget {
+class TabsPage extends ConsumerStatefulWidget {
   const TabsPage({super.key});
 
   @override
-  State<TabsPage> createState() => _TabsPageState();
+  ConsumerState<TabsPage> createState() => _TabsPageState();
 }
 
-class _TabsPageState extends State<TabsPage> {
+class _TabsPageState extends ConsumerState<TabsPage> {
   int _selectedPageIndex = 0;
-  final List<Meal> savedMeals = [];
-  Map<Filter, bool> filters = {
-    Filter.glutenFree: false,
-    Filter.lactoseFree: false,
-    Filter.vegan: false,
-    Filter.vegeterian: false,
-  };
-
   void _selectPage(int index) {
     setState(() {
       _selectedPageIndex = index;
     });
-  }
-
-  void toogleMealSaveStatus(Meal meal) {
-    final isSaved = savedMeals.contains(meal);
-
-    setState(() {
-      if (isSaved) {
-        savedMeals.remove(meal);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Meal unsaved')));
-      } else {
-        savedMeals.add(meal);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Meal saved')));
-      }
-    });
-  }
-
-  void saveMeal(Meal meal) {
-    toogleMealSaveStatus(meal);
   }
 
   void setDrawerPage(String id) async {
@@ -58,17 +29,13 @@ class _TabsPageState extends State<TabsPage> {
     switch (id) {
       case 'filters':
         {
-          final result = await Navigator.of(context).push<Map<Filter, bool>>(
+          await Navigator.of(context).push<Map<Filter, bool>>(
             MaterialPageRoute(
               builder: (BuildContext context) {
-                return FiltersPage(filters: filters);
+                return const FiltersPage();
               },
             ),
           );
-
-          setState(() {
-            if (result != null) filters = result;
-          });
         }
         break;
       default:
@@ -78,24 +45,9 @@ class _TabsPageState extends State<TabsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredMeals = dummyMeals.where((meal) {
-      if (filters[Filter.glutenFree]! && !meal.isGlutenFree) {
-        return false;
-      }
-      if (filters[Filter.lactoseFree]! && !meal.isLactoseFree) {
-        return false;
-      }
-      if (filters[Filter.vegan]! && !meal.isVegan) {
-        return false;
-      }
-      if (filters[Filter.vegeterian]! && !meal.isVegetarian) {
-        return false;
-      }
-      return true;
-    }).toList();
+    final filteredMeals = ref.watch(filteredMealsProvider);
 
     Widget activePage = CategoriesPage(
-      onMealSave: toogleMealSaveStatus,
       meals: filteredMeals,
     );
 
@@ -104,8 +56,7 @@ class _TabsPageState extends State<TabsPage> {
       case 1:
         selectedPageTitle = 'Saved';
         activePage = MealsPage(
-          meals: savedMeals,
-          onMealSave: toogleMealSaveStatus,
+          meals: ref.watch(savedProvider),
         );
         break;
     }
